@@ -44,7 +44,7 @@ public class UsuarioController {
     }
 
     @GetMapping("email/{email}")
-    public ResponseEntity<Usuario> buscarUsuarioPorEmail(String email){
+    public ResponseEntity<Usuario> buscarUsuarioPorEmail(@PathVariable String email){
         try {
             Usuario usuario = service.buscarUsuarioPorEmail(email);
             return ResponseEntity.ok(usuario);
