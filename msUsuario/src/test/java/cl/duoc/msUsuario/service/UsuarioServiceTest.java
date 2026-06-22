@@ -3,10 +3,12 @@ package cl.duoc.msUsuario.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import cl.duoc.msUsuario.dto.UsuarioDTO;
 import cl.duoc.msUsuario.model.Rol;
 import cl.duoc.msUsuario.model.Usuario;
 import cl.duoc.msUsuario.repository.UsuarioRepository;
@@ -42,6 +45,23 @@ public class UsuarioServiceTest {
         usuarioEjemplo.setRol(new Rol(1, "Admin"));
 
     }
+
+    // ---------- listarUsuarios ----------
+
+    @Test
+    void listarUsuarios_retornaLista(){
+        //ARRANGE: el repo retorna una lista con un usuario
+        when(usuarioRepository.findAll()).thenReturn(List.of(usuarioEjemplo));
+
+        //ACT
+        List<Usuario> resultado = usuarioService.listarUsuarios();
+
+        //ASSERT
+        assertEquals(1, resultado.size());
+        assertEquals("Pedro Cid", resultado.get(0).getNombre());
+    }
+
+    // ---------- buscarUsuario por id ----------
 
     @Test
     public void buscarUsuario_encontrado(){
@@ -74,6 +94,36 @@ public class UsuarioServiceTest {
 
     }
 
+    // ---------- buscarUsuarioPorEmail ----------
+
+    @Test
+    void buscarUsuarioPorEmail_encontrado(){
+        //ARRANGE
+        when(usuarioRepository.findByEmail("pedro420z@email.cl")).thenReturn(Optional.of(usuarioEjemplo));
+
+        //ACT
+        Usuario resultado = usuarioService.buscarUsuarioPorEmail("pedro420z@email.cl");
+
+        //ASSERT
+        assertEquals("Pedro Cid", resultado.getNombre());
+        assertEquals("pedro420z@email.cl", resultado.getEmail());
+    }
+
+    @Test
+    void buscarUsuarioPorEmail_noEncontrado(){
+        //ARRANGE: el correo no existe en el repo
+        when(usuarioRepository.findByEmail("noexiste@email.cl")).thenReturn(Optional.empty());
+
+        //ACT + ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            usuarioService.buscarUsuarioPorEmail("noexiste@email.cl");
+        });
+
+        assertEquals("El usuario no existe", exception.getMessage());
+    }
+
+    // ---------- crearUsuario ----------
+
     @Test
     void guardar(){
         //ARRANGE: configuramos que el repository retorne el usuario guardado
@@ -87,6 +137,49 @@ public class UsuarioServiceTest {
 
     }
 
+    // ---------- actualizarUsuario ----------
+
+    @Test
+    void actualizarUsuario_exitoso(){
+        //ARRANGE: el usuario existe y llegan datos nuevos para actualizar
+        Usuario datosActualizados = new Usuario();
+        datosActualizados.setNombre("Pedro Actualizado");
+        datosActualizados.setEmail("nuevo@email.cl");
+        datosActualizados.setPassword("654321");
+        datosActualizados.setRol(new Rol(2, "Cliente"));
+
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioEjemplo));
+        when(usuarioRepository.save(usuarioEjemplo)).thenReturn(usuarioEjemplo);
+
+        //ACT
+        Usuario resultado = usuarioService.actualizarUsuario(1, datosActualizados);
+
+        //ASSERT: el usuario original fue mutado con los nuevos datos
+        assertEquals("Pedro Actualizado", resultado.getNombre());
+        assertEquals("nuevo@email.cl", resultado.getEmail());
+        assertEquals("654321", resultado.getPassword());
+        assertEquals("Cliente", resultado.getRol().getNombre());
+        verify(usuarioRepository, times(1)).save(usuarioEjemplo);
+    }
+
+    @Test
+    void actualizarUsuario_noEncontrado(){
+        //ARRANGE: el usuario 99 no existe
+        when(usuarioRepository.findById(99)).thenReturn(Optional.empty());
+
+        //ACT + ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            usuarioService.actualizarUsuario(99, usuarioEjemplo);
+        });
+
+        assertEquals("El usuario no existe", exception.getMessage());
+
+        //nunca debe intentar guardar si el usuario no existe
+        verify(usuarioRepository, times(0)).save(any(Usuario.class));
+    }
+
+    // ---------- eliminarUsuario ----------
+
     @Test
     void eliminarExitoso(){
         //ARRANGE: el usuario existe
@@ -97,7 +190,6 @@ public class UsuarioServiceTest {
 
         //verificamos que el deleteByID fue exitoso solo una vez
         verify(usuarioRepository, times(1)).deleteById(1);
-
     }
 
     @Test
@@ -117,5 +209,31 @@ public class UsuarioServiceTest {
         verify(usuarioRepository, times(0)).deleteById(99);
     }
 
+    // ---------- buscarDTO ----------
+
+    @Test
+    void buscarDTO_exitoso(){
+        //ARRANGE: el usuario existe, así que buscarUsuario(id) internamente lo encuentra
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioEjemplo));
+
+        //ACT
+        UsuarioDTO resultado = usuarioService.buscarDTO(1);
+
+        //ASSERT: el DTO debe tener los mismos datos que el usuario
+        assertEquals("Pedro Cid", resultado.getNombre());
+    }
+
+    @Test
+    void buscarDTO_noEncontrado(){
+        //ARRANGE: el usuario no existe, buscarUsuario(id) lanzará la excepción
+        when(usuarioRepository.findById(99)).thenReturn(Optional.empty());
+
+        //ACT + ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            usuarioService.buscarDTO(99);
+        });
+
+        assertEquals("El usuario no existe", exception.getMessage());
+    }
 
 }

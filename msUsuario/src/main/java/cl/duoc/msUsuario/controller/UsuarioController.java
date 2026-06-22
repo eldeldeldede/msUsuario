@@ -71,7 +71,7 @@ public class UsuarioController {
         summary = "Guarda un usuario en la base de datos.",
         description = "Se le dan datos mediante la estructura JSon, datos que luego serán guardados en la base de datos, creando un nuevo usuario."
     )
-    public ResponseEntity<Usuario> guardarUsuario(Usuario usuario){
+    public ResponseEntity<Usuario> guardarUsuario(@RequestBody Usuario usuario){
         try {
             Usuario nuevoUsuario = service.crearUsuario(usuario);
             return ResponseEntity.ok(nuevoUsuario);
