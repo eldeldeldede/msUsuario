@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "roles")
+@Schema(description = "Representa un rol de usuario dentro del sistema.")
 public class Rol {
 
     @Id
