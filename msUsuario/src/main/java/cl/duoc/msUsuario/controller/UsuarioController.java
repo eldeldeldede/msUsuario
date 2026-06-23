@@ -42,7 +42,8 @@ public class UsuarioController {
 
     @GetMapping("id/{id}")
     @Operation(summary = "Buscar usuario por ID.", 
-               description = "Retorna un usuario según el ID proporcionado y debe retornar solo un usuario.")
+               description = "Retorna un usuario según el ID proporcionado y debe retornar solo un usuario."
+    )
     public ResponseEntity<Usuario> buscarUsuario(@PathVariable Integer id){
         try {
             Usuario usuario = service.buscarUsuario(id);
