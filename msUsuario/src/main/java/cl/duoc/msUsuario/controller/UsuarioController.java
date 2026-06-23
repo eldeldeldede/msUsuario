@@ -108,5 +108,18 @@ public class UsuarioController {
         }
     }
 
+    @GetMapping("dto/email/{email}")
+    @Operation(
+        summary = "Retorna el DTO de un usuario por correo electrónico.",
+        description = "Recibe el correo electrónico del usuario del cual se requiere el DTO. Este DTO sirve para enviar los datos de usuario a otros microservicios que lo requieran."
+    )
+    public ResponseEntity<UsuarioDTO> buscarDTOPorEmail(@PathVariable String email){
+        try {
+            UsuarioDTO usuarioDTO = service.buscarDTOPorEmail(email);
+            return ResponseEntity.ok(usuarioDTO);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

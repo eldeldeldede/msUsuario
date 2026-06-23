@@ -54,5 +54,9 @@ public class UsuarioService {
         return new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol().getNombre());
     }
 
+    public UsuarioDTO buscarDTOPorEmail(String email){
+        Usuario usuario = buscarUsuarioPorEmail(email);
+        return new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getEmail(), usuario.getRol().getNombre());
+    }
 
 }

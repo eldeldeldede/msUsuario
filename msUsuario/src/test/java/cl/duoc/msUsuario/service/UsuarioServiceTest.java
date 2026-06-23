@@ -236,4 +236,29 @@ public class UsuarioServiceTest {
         assertEquals("El usuario no existe", exception.getMessage());
     }
 
+    @Test
+    void buscarDTOPorEmail_exitoso(){
+        //ARRANGE: el usuario existe, así que buscarUsuarioPorEmail(email) internamente lo encuentra
+        when(usuarioRepository.findByEmail("pedro420z@email.cl")).thenReturn(Optional.of(usuarioEjemplo));
+
+        //ACT
+        UsuarioDTO resultado = usuarioService.buscarDTOPorEmail("pedro420z@email.cl");
+
+        //ASSERT
+        assertEquals("Pedro Cid", resultado.getNombre());
+    }
+
+    @Test
+    void buscarDTOPorEmail_noEncontrado(){
+        //ARRANGE: el usuario no existe, buscarUsuarioPorEmail(email) lanzará la excepción
+        when(usuarioRepository.findByEmail("correo@email.cl")).thenReturn(Optional.empty());
+
+        //ACT + ASSERT
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            usuarioService.buscarDTOPorEmail("correo@email.cl");    
+        });
+
+        assertEquals("El usuario no existe", exception.getMessage());
+    }
+
 }

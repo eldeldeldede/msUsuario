@@ -198,4 +198,16 @@ public class UsuarioControllerTest {
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void buscarDTOPorEmail_retorna200() throws Exception{
+        //ARRANGE
+        when(service.buscarDTOPorEmail("pedro420z@email.cl")).thenReturn(dtoEjemplo);
+
+        //ACT + ASSERT
+        mock.perform(get("/api/v1/usuarios/dto/email/pedro420z@email.cl"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.nombre").value("Pedro Cid"));
+    }
+
+
 }
