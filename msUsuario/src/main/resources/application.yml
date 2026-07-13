@@ -22,5 +22,6 @@ springdoc:
   api-docs:
     enabled: true
     version: openapi_3_0
+    path: /api/v1/usuarios/v3/api-docs
   swagger-ui:
     enabled: true
